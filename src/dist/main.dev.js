@@ -14,4 +14,5 @@ require("element-plus/lib/theme-chalk/index.css");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+// createApp.use(VueCompositionApi)
 (0, _vue.createApp)(_App["default"]).use(_store["default"]).use(_index["default"]).use(_elementPlus["default"]).mount('#app');

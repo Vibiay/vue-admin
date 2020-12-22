@@ -1,5 +1,13 @@
 <template>
   <div class="login">
+    <!-- <div class="login-child">
+            <div class="login-child-title flex-x">
+                <button class="btns" :class="{bgcolor:flag == true}" @click="change">登录</button>
+                <button class="btns" :class="{bgcolor:flag == false}" @click="change">注册</button>
+            </div>
+            <logins v-if="flag"></logins>
+            <register v-else></register>
+        </div> -->
     <div class="login-wrap">
       <ul class="menu-tab">
         <li
@@ -33,44 +41,33 @@
             type="password"
             v-model="ruleForm.password"
             autocomplete="off"
-            maxlength="20"
-            minlength="6"
+            maxlength = "20" minlength = "6"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          prop="passwords"
-          class="item-form"
-          v-show="model === 'register'"
-        >
-          <!-- {{model}} -->
+        <el-form-item prop="passwords" class="item-form" v-if = 'model=="register"'>
           <label>重复密码</label>
           <el-input
             type="password"
             v-model="ruleForm.passwords"
             autocomplete="off"
-            maxlength="20"
-            minlength="6"
+            maxlength = "20" minlength = "6"
           ></el-input>
         </el-form-item>
         <el-form-item prop="code" class="item-form">
           <label>验证码</label>
           <el-row :gutter="10">
             <el-col :span="15">
-              <el-input
-                v-model.number="ruleForm.code"
-                maxlength="6"
-                minlength="6"
-              ></el-input>
+                <el-input v-model.number="ruleForm.code"  maxlength="6" minlength="6"></el-input>
             </el-col>
-            <el-col :span="9">
-              <el-button type="success" class="block">验证码</el-button>
+            <el-col :span="9" >
+                <el-button type="success" class="block">验证码</el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item>
           <el-button
             type="danger"
-            @click='submitForm("ruleForm")'
+            @click="submitForm('ruleForm')"
             class="login-btn block"
             >提交</el-button
           >
@@ -80,76 +77,24 @@
   </div>
 </template>
 <script>
-import {service} from "@/utils/request.js"
-import {xxx} from '@/api/login.js'
-import { reactive, ref ,getCurrentInstance } from "vue";
-import {
-  stripscript,
-  validateEmail,
-  validatePass,
-  validateCode,
-} from "@/utils/validate";
+import { stripscript , validateEmail ,validatePass ,validateCode} from "@/utils/validate"
 export default {
   name: "login",
-  setup(props, context) {
-    
-    // 这里面放置data数据，生命周期，自定义函数
-    const menuTab = reactive([
-      { txt: "登录", current: true, type: "login" },
-      { txt: "注册", current: false, type: "register" },
-    ]);
-    // 模块值
-    const model = ref("login");
-    const {ctx} = getCurrentInstance()
-    
-    // 声明函数
-    const toggle = (data) => {
-      menuTab.forEach((ele, index) => {
-        ele.current = false;
-      });
-      data.current = true;
-      // 修改tab的值
-      model.value = data.type;
-    };
-    // const submitForm = (formName=>{
-    //   console.log(ctx[formName])
-    //   ctx[formName].validate((valid) => {
-    //     if (valid) {
-    //       alert("submit!");
-    //     } else {
-    //       console.log("error submit!!");
-    //       return false;
-    //     }
-    //   })
-    // })
-    return {
-      // validateUsername,
-      // validatePassword,
-      // validatePasswords,
-      // validatCode,
-      menuTab,
-      model,
-      // ruleForm,
-      // rules,
-      toggle,
-      // submitForm,
-    };
-  },
   data() {
     //   验证邮箱
     var validateUsername = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入用户名"));
-      } else if (validateEmail(value)) {
-        callback(new Error("用户名格式有误"));
-      } else {
+      } else if(validateEmail(value)){
+        callback(new Error("用户名格式有误")); 
+      }else{
         callback();
       }
     };
     // 验证密码
     var validatePassword = (rule, value, callback) => {
-      this.ruleForm.password = stripscript(value);
-      value = this.ruleForm.password;
+      this.ruleForm.password = stripscript(value)
+      value = this.ruleForm.password
       if (value === "") {
         callback(new Error("请输入密码"));
       } else if (validatePass(value)) {
@@ -162,8 +107,8 @@ export default {
     var validatePasswords = (rule, value, callback) => {
       // 如果model值为login，直接登录
       // if(this.model == 'login'){ callback() }
-      this.ruleForm.passwords = stripscript(value);
-      value = this.ruleForm.passwords;
+      this.ruleForm.passwords = stripscript(value)
+      value = this.ruleForm.passwords
       if (value === "") {
         callback(new Error("请再次输入密码"));
       } else if (value != this.ruleForm.password) {
@@ -174,47 +119,46 @@ export default {
     };
     // 验证验证码
     var validatCode = (rule, value, callback) => {
-      if (value === "") {
+      if (value === '') {
         return callback(new Error("请输入验证码"));
-      } else if (validateCode(value)) {
+      }else if(validateCode(value)){
         return callback(new Error("验证码格式有误"));
-      } else {
-        callback();
+      }else{
+        callback(); 
       }
     };
     return {
-      // menuTab: [
-      //   { txt: "登录", current: true ,type:'login' },
-      //   { txt: "注册", current: false ,type:'register'},
-      // ],
-      // model:'login',
-      // 表单的数据
+      flag: true,
+      menuTab: [
+        { txt: "登录", current: true ,type:'login' },
+        { txt: "注册", current: false ,type:'register'},
+      ],
+      model:'login',
+      //   表单的数据
       ruleForm: {
         username: "",
         password: "",
-        passwords: "",
+        passwords:"",
         code: "",
       },
       rules: {
         username: [{ validator: validateUsername, trigger: "blur" }],
         password: [{ validator: validatePassword, trigger: "blur" }],
-        passwords: [{ validator: validatePasswords, trigger: "blur" }],
+        passwords:[{ validator: validatePasswords, trigger: "blur" }],
         code: [{ validator: validatCode, trigger: "blur" }],
       },
     };
   },
   methods: {
-    // toggle(data) {
-    //   console.log(data);
-    //   this.menuTab.forEach((ele, index) => {
-    //     ele.current = false;
-    //   });
-    //   data.current = true;
-    //   // 修改tab的值
-    //   this.model = data.type;
-    // },
+    toggle(data) {
+      this.menuTab.forEach((ele) => {
+        ele.current = false;
+      });
+      data.current = true;
+      // 修改tab的值
+      this.model = data.type
+    },
     submitForm(formName) {
-
       this.$refs[formName].validate((valid) => {
         if (valid) {
           alert("submit!");
