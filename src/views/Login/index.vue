@@ -63,7 +63,7 @@
               ></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" class="block">验证码</el-button>
+              <el-button type="success" class="block" @click = 'getSms()' :disabled = 'codeButtonStatus.status'>{{codeButtonStatus.text}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -72,7 +72,8 @@
             type="danger"
             @click='submitForm("ruleForm")'
             class="login-btn block"
-            >提交</el-button
+            :disabled = "loginButtonStatus"
+            >{{model === 'login' ? '登录' : '注册'}}</el-button
           >
         </el-form-item>
       </el-form>
@@ -80,9 +81,8 @@
   </div>
 </template>
 <script>
-import {service} from "@/utils/request.js"
-import {xxx} from '@/api/login.js'
-import { reactive, ref ,getCurrentInstance } from "vue";
+import {GetSms} from '@/api/login.js'
+import { reactive, ref ,getCurrentInstance, onMounted } from "vue";
 import {
   stripscript,
   validateEmail,
@@ -92,7 +92,6 @@ import {
 export default {
   name: "login",
   setup(props, context) {
-    
     // 这里面放置data数据，生命周期，自定义函数
     const menuTab = reactive([
       { txt: "登录", current: true, type: "login" },
@@ -101,7 +100,13 @@ export default {
     // 模块值
     const model = ref("login");
     const {ctx} = getCurrentInstance()
-    
+    // 登录按钮禁用状态
+    const loginButtonStatus = ref(true)
+    // 验证码按钮禁用状态
+    const codeButtonStatus = reactive({
+      status:false,
+      text:'获取验证码'
+    })
     // 声明函数
     const toggle = (data) => {
       menuTab.forEach((ele, index) => {
@@ -110,29 +115,59 @@ export default {
       data.current = true;
       // 修改tab的值
       model.value = data.type;
+      // 重置表单
+      ctx.$refs.ruleForm.resetFields()
     };
-    // const submitForm = (formName=>{
-    //   console.log(ctx[formName])
-    //   ctx[formName].validate((valid) => {
-    //     if (valid) {
-    //       alert("submit!");
-    //     } else {
-    //       console.log("error submit!!");
-    //       return false;
-    //     }
-    //   })
-    // })
+    /**
+     * 获取验证码
+     */
+    const getSms = (() => {
+      if(ctx.ruleForm.username == ''){
+         ctx.$message.error('邮箱不能为空');
+        return false
+      }
+      if(validateEmail(ctx.ruleForm.username)){
+        ctx.$message.error('邮箱格式有误，请重新输入!!')
+        return false
+      }
+      // 获取验证码
+      let requestData = {
+        username:ctx.ruleForm.username,
+        module:model.value
+      }
+      // 修改获取验证按钮状态
+      codeButtonStatus.status = true
+      codeButtonStatus.text = '发送中'
+      setTimeout(()=>{
+        //请求接口
+        console.log(ctx)
+          GetSms(requestData).then(response=>{
+            console.log(response)
+            let data  = response.data;
+            ctx.$message({
+              message:data.message,
+              type:'success'
+            })
+          }).catch(error=>{
+            console.log(error)
+          })
+        },5000)
+      })
+      
+
+    
+    // 挂载完成后
+    onMounted(()=>{
+
+    })
+
     return {
-      // validateUsername,
-      // validatePassword,
-      // validatePasswords,
-      // validatCode,
       menuTab,
       model,
-      // ruleForm,
-      // rules,
       toggle,
-      // submitForm,
+      getSms,
+      loginButtonStatus,
+      codeButtonStatus,
     };
   },
   data() {
