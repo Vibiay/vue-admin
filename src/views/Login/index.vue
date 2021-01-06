@@ -57,23 +57,29 @@
           <el-row :gutter="10">
             <el-col :span="15">
               <el-input
-                v-model.number="ruleForm.code"
+                v-model="ruleForm.code"
                 maxlength="6"
                 minlength="6"
               ></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" class="block" @click = 'getSms()' :disabled = 'codeButtonStatus.status'>{{codeButtonStatus.text}}</el-button>
+              <el-button
+                type="success"
+                class="block"
+                @click="getSms()"
+                :disabled="codeButtonStatus.status"
+                >{{ codeButtonStatus.text }}</el-button
+              >
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item>
           <el-button
             type="danger"
-            @click='submitForm("ruleForm")'
+            @click="submitForm('ruleForm')"
             class="login-btn block"
-            :disabled = "loginButtonStatus"
-            >{{model === 'login' ? '登录' : '注册'}}</el-button
+            :disabled="loginButtonStatus"
+            >{{ model === "login" ? "登录" : "注册" }}</el-button
           >
         </el-form-item>
       </el-form>
@@ -81,8 +87,9 @@
   </div>
 </template>
 <script>
-import {GetSms} from '@/api/login.js'
-import { reactive, ref ,getCurrentInstance, onMounted } from "vue";
+import sha1 from "sha1";
+import { GetSms, Register, Login } from "@/api/login.js";
+import { reactive, ref, getCurrentInstance, onMounted } from "vue";
 import {
   stripscript,
   validateEmail,
@@ -99,14 +106,16 @@ export default {
     ]);
     // 模块值
     const model = ref("login");
-    const {ctx} = getCurrentInstance()
+    const { ctx } = getCurrentInstance();
     // 登录按钮禁用状态
-    const loginButtonStatus = ref(true)
+    const loginButtonStatus = ref(false);
     // 验证码按钮禁用状态
     const codeButtonStatus = reactive({
-      status:false,
-      text:'获取验证码'
-    })
+      status: false,
+      text: "获取验证码",
+    });
+    // 声明倒计时
+    const timer = ref(null);
     // 声明函数
     const toggle = (data) => {
       menuTab.forEach((ele, index) => {
@@ -116,50 +125,76 @@ export default {
       // 修改tab的值
       model.value = data.type;
       // 重置表单
-      ctx.$refs.ruleForm.resetFields()
+      ctx.$refs.ruleForm.resetFields();
     };
     /**
      * 获取验证码
      */
-    const getSms = (() => {
-      if(ctx.ruleForm.username == ''){
-         ctx.$message.error('邮箱不能为空');
-        return false
+    const getSms = () => {
+      if (ctx.ruleForm.username == "") {
+        ctx.$message.error("邮箱不能为空");
+        return false;
       }
-      if(validateEmail(ctx.ruleForm.username)){
-        ctx.$message.error('邮箱格式有误，请重新输入!!')
-        return false
+      if (validateEmail(ctx.ruleForm.username)) {
+        ctx.$message.error("邮箱格式有误，请重新输入!!");
+        return false;
       }
       // 获取验证码
       let requestData = {
-        username:ctx.ruleForm.username,
-        module:model.value
-      }
+        username: ctx.ruleForm.username,
+        module: model.value,
+      };
       // 修改获取验证按钮状态
-      codeButtonStatus.status = true
-      codeButtonStatus.text = '发送中'
-      setTimeout(()=>{
+      codeButtonStatus.status = true;
+      codeButtonStatus.text = "发送中";
+      setTimeout(() => {
         //请求接口
-        console.log(ctx)
-          GetSms(requestData).then(response=>{
-            console.log(response)
-            let data  = response.data;
+        GetSms(requestData)
+          .then((response) => {
+            console.log(response);
+            let data = response.data;
             ctx.$message({
-              message:data.message,
-              type:'success'
-            })
-          }).catch(error=>{
-            console.log(error)
+              message: data.message,
+              type: "success",
+            });
+            // 启用登录或注册按钮
+            loginButtonStatus.value = false;
+            // 调用定时器方法，倒计时60s
+            countDown(60);
           })
-        },5000)
-      })
-      
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 3000);
+    };
+    /**
+     * 倒计时*/
+    const countDown = (number) => {
+      let num = number;
+      timer.value = setInterval(() => {
+        num--;
+        if (num == 0) {
+          clearInterval(timer.value);
+          codeButtonStatus.status = false;
+          codeButtonStatus.text = `再次获取`;
+        } else {
+          codeButtonStatus.text = `倒计时  ${num}`;
+        }
+      }, 1000);
+    };
+    /**
+     * 清除倒计时
+     */
+    const clearCountDown = () => {
+      // 还原验证码默认状态
+      codeButtonStatus.status = false;
+      codeButtonStatus.text = "获取验证码";
+      // 清除倒计时
+      clearInterval(timer.value);
+    };
 
-    
     // 挂载完成后
-    onMounted(()=>{
-
-    })
+    onMounted(() => {});
 
     return {
       menuTab,
@@ -168,6 +203,7 @@ export default {
       getSms,
       loginButtonStatus,
       codeButtonStatus,
+      countDown,
     };
   },
   data() {
@@ -239,20 +275,35 @@ export default {
     };
   },
   methods: {
-    // toggle(data) {
-    //   console.log(data);
-    //   this.menuTab.forEach((ele, index) => {
-    //     ele.current = false;
-    //   });
-    //   data.current = true;
-    //   // 修改tab的值
-    //   this.model = data.type;
-    // },
     submitForm(formName) {
-
+      // 模拟注册成功
+      this.toggle(this.menuTab[0]);
+      this.clearCountDown();
+      return false;
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert("submit!");
+          let requestData = {
+            username: this.ruleForm.username,
+            password: this.ruleForm.password,
+            code: this.ruleForm.code,
+          };
+          if ((this.model == "register")) {
+            Register(requestData)
+              .then((res) => {
+                let data = res.data;
+                this.$message({
+                  message: data.message,
+                  type: "success",
+                });
+              })
+              .catch((error) => {
+                // 失败时处理的操作
+              });
+          }else if(this.model == 'login'){
+            Login(requestData).then(res=>{
+              console.log(res)
+            })
+          }
         } else {
           console.log("error submit!!");
           return false;

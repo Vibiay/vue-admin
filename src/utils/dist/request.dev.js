@@ -16,7 +16,7 @@ var BASEURL = process.env_NODE_ENV === 'production' ? '' : '/api';
 
 var service = _axios["default"].create({
   baseURL: BASEURL,
-  timeout: 1000
+  timeout: 15000
 }); // 添加请求拦截器
 
 

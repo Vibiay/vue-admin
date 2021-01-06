@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus';
 const BASEURL = process.env_NODE_ENV === 'production' ? '' : '/api';
 const service = axios.create({
     baseURL:BASEURL,
-    timeout:1000
+    timeout:15000
 })
 
 // 添加请求拦截器
