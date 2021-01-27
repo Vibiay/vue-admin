@@ -1,0 +1,32 @@
+.el-menu-item{
+    font-size:14px;
+    padding-left:50px !important;
+    &.is-active{
+    background-color: rgba(245,108,108,.2) !important;
+}
+}
+// 修改一级菜单样式
+li.el-submenu{
+    &.is-active.is-opened .el-submenu__title{
+        background-color: $mainColor !important;
+    }
+}
+
+ul.el-menu-vertical-demo{
+    width:100%;
+}
+
+.close{
+    .el-submenu{
+        &.is-opened{
+            > .el-submenu__title{
+                background-color:$mainColor !important;
+            }
+        }
+    }
+}
+.el-menu--vertical{
+    .el-menu-item:hover{
+        background-color: $mainColor !important;
+    }
+}
