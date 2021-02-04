@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {Login} from '@/api/login'
+// import {Login} from '@/api/login'
 Vue.use(Vuex)
 import app from './modules/app'
 
@@ -18,17 +18,17 @@ export default new Vuex.Store({
     // }
   },
   actions: {
-    login(context,data){
-      return new Promise((resolve,reject)=>{
-        // 接口 
-        Login(data).then(res=>{
-          resolve(res)
-        }).catch(err=>{
-          reject(err)
-        })
+    // login(context,data){
+    //   return new Promise((resolve,reject)=>{
+    //     // 接口 
+    //     Login(data).then(res=>{
+    //       resolve(res)
+    //     }).catch(err=>{
+    //       reject(err)
+    //     })
 
-      })
-    }
+    //   })
+    // }
   },
   modules: {
     app

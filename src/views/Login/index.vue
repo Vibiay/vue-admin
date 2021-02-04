@@ -297,7 +297,7 @@ export default {
         code: ruleForm.code
       };
       // 登录接口
-      root.$store.dispatch('login',requestData).then(res=>{
+      root.$store.dispatch('app/login',requestData).then(res=>{
         console.log(res)
         root.$router.push({
           name:'Console'
@@ -305,15 +305,6 @@ export default {
       }).catch(error=>{
         console.log(error)
       })
-      // root.$store
-      //   .dispatch("app/login", repuestData)
-      //   .then(response => {
-      //     // 页面跳转
-      //     root.$router.push({
-      //       name: "Console"
-      //     });
-      //   })
-      //   .catch(error => {});
     };
     /**
      * 注册
