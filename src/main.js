@@ -7,8 +7,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueCompositionApi from '@vue/composition-api' 
 import './icons'
 import './router/guard'
+import globals from "@/utils/global"
 Vue.use(ElementUI)
 Vue.use(VueCompositionApi)
+Vue.use(globals)
 Vue.config.productionTip = false
 
 

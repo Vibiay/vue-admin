@@ -30,3 +30,28 @@ ul.el-menu-vertical-demo{
         background-color: $mainColor !important;
     }
 }
+// 修改表格选框样式
+div.el-table{
+    td,th{
+        text-align:center
+    }
+    th{
+        font-weight: bold;
+        color:#344a5f;
+    }
+    td{
+        font-size:14px;
+    }
+}
+// dialog样式
+.el-dialog__body{
+    padding:30px 47px !important;
+}
+.el-dialog__footer{
+    text-align:center;
+    padding-bottom:50px !important;
+    .el-button{
+        width:150px !important;
+        margin:0 11px !important;
+    }
+}
